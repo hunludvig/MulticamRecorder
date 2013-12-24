@@ -63,6 +63,12 @@
     <Reference Include="Common.Logging.NLog">
       <HintPath>..\packages\Common.Logging.NLog.2.0.0\lib\2.0\Common.Logging.NLog.dll</HintPath>
     </Reference>
+    <Reference Include="J832.Common">
+      <HintPath>..\packages\J832\lib\J832.Common.dll</HintPath>
+    </Reference>
+    <Reference Include="J832.Wpf.BagOTricksLib">
+      <HintPath>..\packages\J832\lib\J832.Wpf.BagOTricksLib.dll</HintPath>
+    </Reference>
     <Reference Include="NLog">
       <HintPath>..\packages\NLog.2.1.0\lib\net45\NLog.dll</HintPath>
     </Reference>
