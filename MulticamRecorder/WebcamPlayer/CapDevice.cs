@@ -105,8 +105,6 @@ namespace CatenaLogic.Windows.Presentation.WebcamPlayer
 
         private static ILog log = LogManager.GetCurrentClassLogger();
 
-        private System.Diagnostics.Stopwatch _timer = System.Diagnostics.Stopwatch.StartNew();
-        private double _frames = 0.0;
         private string _monikerString = "";
         #endregion
 
@@ -147,7 +145,6 @@ namespace CatenaLogic.Windows.Presentation.WebcamPlayer
         /// </summary>
         public void Dispose()
         {
-            // Stop
             Stop();
         }
         #endregion

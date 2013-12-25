@@ -5,6 +5,7 @@ using System.IO;
 using System.Collections.Concurrent;
 using System.Threading;
 using System.Windows.Threading;
+
 using CatenaLogic.Windows.Presentation.WebcamPlayer;
 
 using Common.Logging;
@@ -36,12 +37,6 @@ public class Test
     }
 
 
-    //private void DiyDispatcher() {
-    //    Dispatcher.Run();
-    //}
-    //new Thread(DiyDispatcher).Start();     
-
-
     public Test() {
         //TestExecutor();
           
@@ -53,8 +48,6 @@ public class Test
     {
         new Test();
     }
-
-
 
     public void WpfCam() {
         String moniker = "@device:pnp:\\\\?\\usb#vid_0bda&pid_5727&mi_00#6&29acc6bd&0&0000#{65e8773d-8f56-11d0-a3b9-00a0c9223196}\\global";
