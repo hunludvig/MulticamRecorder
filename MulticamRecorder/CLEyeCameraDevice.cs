@@ -554,7 +554,7 @@ namespace CLEyeMulticam
                     BitmapFrame bitmap = BitmapFrame.Create(BitmapSource);
                     bitmap.Freeze();
                     if(BitmapUpdated!=null)
-                        BitmapUpdated.Invoke(this, new ImagingEventArgs(bitmap, i, Stopwatch.GetTimestamp()));
+                        BitmapUpdated(this, new ImagingEventArgs(bitmap, i, Stopwatch.GetTimestamp()));
                 }
             }
             CLEyeCameraStop(_camera);
