@@ -1,13 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Windows;
 using System.Windows.Media.Imaging;
 using System.IO;
+using System.Collections;
 using System.Diagnostics;
-using System.Windows.Threading;
-using System.Threading;
 using System.Threading.Tasks;
 
 using Spring.Context;
@@ -16,7 +12,7 @@ using Spring.Context.Support;
 using Common.Logging;
 
 using CLEyeMulticam;
-using System.Collections;
+
 
 
 namespace MulticamRecorder
