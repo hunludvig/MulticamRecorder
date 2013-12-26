@@ -6,7 +6,7 @@ using System.Collections.Concurrent;
 using System.Threading;
 using System.Windows.Threading;
 
-using CatenaLogic.Windows.Presentation.WebcamPlayer;
+using CatenaLogic;
 
 using Common.Logging;
 
