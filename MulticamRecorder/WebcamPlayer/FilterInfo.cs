@@ -22,7 +22,7 @@ using System.Text;
 using System.Runtime.InteropServices.ComTypes;
 using System.Runtime.InteropServices;
 
-namespace CatenaLogic.Windows.Presentation.WebcamPlayer
+namespace CatenaLogic
 {
     /// <summary>
     /// FilterInfo class

@@ -21,7 +21,7 @@ using System.Linq;
 using System.Text;
 using System.Runtime.InteropServices;
 
-namespace CatenaLogic.Windows.Presentation.WebcamPlayer
+namespace CatenaLogic
 {
     /// <summary>
     /// Class that helps finding the pins for a specific filter

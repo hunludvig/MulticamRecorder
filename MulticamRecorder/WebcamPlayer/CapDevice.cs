@@ -25,12 +25,15 @@ using System.Windows;
 using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using System.Diagnostics;
 
 using Common.Logging;
 
-namespace CatenaLogic.Windows.Presentation.WebcamPlayer
+using MulticamRecorder;
+
+namespace CatenaLogic
 {
-    public class CapDevice : DependencyObject, IDisposable
+    public class CapDevice : DependencyObject, IDisposable, ICamera
     {
         #region Win32
         static readonly Guid FilterGraph = new Guid(0xE436EBB3, 0x524F, 0x11CE, 0x9F, 0x53, 0x00, 0x20, 0xAF, 0x0B, 0xA7, 0x70);
@@ -102,6 +105,7 @@ namespace CatenaLogic.Windows.Presentation.WebcamPlayer
         private CapGrabber _capGrabber = null;
         private IntPtr _map = IntPtr.Zero;
         private IntPtr _section = IntPtr.Zero;
+        private int frames = 0;
 
         private static ILog log = LogManager.GetCurrentClassLogger();
 
@@ -154,7 +158,7 @@ namespace CatenaLogic.Windows.Presentation.WebcamPlayer
         /// Event that is invoked when a new bitmap is ready
         /// </summary>
         public event EventHandler NewBitmapReady;
-        public event EventHandler NewFrameArrived;
+        public event EventHandler<ImagingEventArgs> NewFrameArrived;
         #endregion
 
         #region Properties
@@ -230,6 +234,7 @@ namespace CatenaLogic.Windows.Presentation.WebcamPlayer
         public string MonikerString
         {
             get {return _monikerString;}
+            set { _monikerString = value; }
         }
 
         /// <summary>
@@ -284,13 +289,16 @@ namespace CatenaLogic.Windows.Presentation.WebcamPlayer
         {
             log.Trace("capGrabber new frame arrived");
             // Make sure to be thread safe
+            frames++;
                 addTask(delegate
                 {
                     if (BitmapSource != null)
                     {
-                        BitmapSource.Invalidate();
+                        BitmapFrame bitmap = BitmapFrame.Create(BitmapSource);
+                        bitmap.Freeze();
                         if (NewFrameArrived != null)
-                            NewFrameArrived(this, null);
+                            NewFrameArrived(this, new ImagingEventArgs(bitmap, frames, Stopwatch.GetTimestamp()));
+                        BitmapSource.Invalidate();
                     }
                 });
         }

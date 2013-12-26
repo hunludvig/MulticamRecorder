@@ -23,7 +23,7 @@ using System.Runtime.InteropServices;
 using System.Windows.Media;
 using System.ComponentModel;
 
-namespace CatenaLogic.Windows.Presentation.WebcamPlayer
+namespace CatenaLogic
 {
     internal class CapGrabber : ISampleGrabberCB, INotifyPropertyChanged
     {

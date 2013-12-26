@@ -21,7 +21,7 @@ using System.Linq;
 using System.Text;
 using System.Runtime.InteropServices;
 
-namespace CatenaLogic.Windows.Presentation.WebcamPlayer
+namespace CatenaLogic
 {
     [ComVisible(false)]
     internal enum PinDirection
