@@ -23,6 +23,8 @@ using System.Windows.Media.Imaging;
 
 using Common.Logging;
 
+using MulticamRecorder;
+
 namespace CLEyeMulticam
 {
     #region [ Camera Parameters ]
@@ -71,22 +73,10 @@ namespace CLEyeMulticam
     };
     #endregion
 
-    public class ImagingEventArgs : EventArgs 
-    {
-        public long Timestamp { get; private set; }
-        public int Frame { get; private set; }
-        public BitmapFrame Bitmap { get; private set; }
-
-        public ImagingEventArgs(BitmapFrame bitmap, int frame, long timestamp)
-        {
-            Bitmap = bitmap;
-            Frame = frame;
-            Timestamp = timestamp;
-        }
-    }
 
 
-    public class CLEyeCameraDevice : DependencyObject, IDisposable
+
+    public class CLEyeCameraDevice : DependencyObject, IDisposable, ICamera
     {
         #region [ CLEyeMulticam Imports ]
         [DllImport("CLEyeMulticam.dll", CallingConvention = CallingConvention.Cdecl)]
@@ -134,7 +124,7 @@ namespace CLEyeMulticam
 
         #region [ Events ]
         public event EventHandler BitmapReady;
-        public event EventHandler<ImagingEventArgs> BitmapUpdated;
+        public event EventHandler<ImagingEventArgs> NewFrameArrived;
         #endregion
 
         
@@ -520,7 +510,7 @@ namespace CLEyeMulticam
             }
         }
 
-        public void Start()
+        private void Start()
         {
             if (!_valid)
                 throw new InvalidOperationException("Camera is not initialized");
@@ -550,13 +540,18 @@ namespace CLEyeMulticam
                     i++;
                     BitmapFrame bitmap = BitmapFrame.Create(BitmapSource);
                     bitmap.Freeze();
-                    if(BitmapUpdated!=null)
-                        BitmapUpdated(this, new ImagingEventArgs(bitmap, i, Stopwatch.GetTimestamp()));
+                    if(NewFrameArrived!=null)
+                        NewFrameArrived(this, new ImagingEventArgs(bitmap, i, Stopwatch.GetTimestamp()));
                 }
             }
             CLEyeCameraStop(_camera);
             CLEyeDestroyCamera(_camera);
         }
         #endregion
+
+        void ICamera.Start()
+        {
+            CreateAndStart();
+        }
     }
 }
