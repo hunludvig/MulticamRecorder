@@ -11,17 +11,13 @@ using Spring.Context.Support;
 
 using Common.Logging;
 
-using CLEyeMulticam;
-
-
-
 namespace MulticamRecorder
 {
     class Program
     {
         static private Stopwatch watch;
 
-        static CLEyeCameraDevice Device;
+        static ICamera Device;
 
         static void Main(string[] args)
         {
@@ -31,9 +27,9 @@ namespace MulticamRecorder
 
             watch = new Stopwatch();
 
-            IDictionary cameras = context.GetObjectsOfType(typeof(CLEyeCameraDevice));
+            IDictionary cameras = context.GetObjectsOfType(typeof(ICamera));
             
-            Device = (CLEyeCameraDevice)context.GetObject("camera");
+            //Device = (ICamera)context.GetObject("camera");
             //Device.BitmapUpdated += ShowFps;
 
             Console.WriteLine(Stopwatch.Frequency);
@@ -43,7 +39,7 @@ namespace MulticamRecorder
             Console.ReadLine();
 
             log.Info("Stopping camera");
-            foreach (CLEyeCameraDevice camera in cameras.Values)
+            foreach (ICamera camera in cameras.Values)
             {
                 camera.Stop();
             }
