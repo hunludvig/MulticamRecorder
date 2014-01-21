@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.Windows.Media.Imaging;
 using System.IO;
+using System.Collections;
 using System.Collections.Concurrent;
 using System.Threading;
 using System.Windows.Threading;
@@ -39,7 +40,6 @@ public class Test
 
     public Test() {
         //TestExecutor();
-          
         WpfCam();
     }
 
@@ -49,14 +49,33 @@ public class Test
         new Test();
     }
 
+
+    //  // function to test AForge cam library. It works.
+    //void AforgeCam()
+    //{
+    //    VideoCaptureDevice cam = new VideoCaptureDevice(moniker);
+    //    cam.NewFrame += showFps;
+    //    cam.DesiredFrameRate = 15;
+
+    //    cam.Start();
+
+    //    Console.ReadLine();
+
+    //    cam.Stop();
+    //}
+
+
+    private String moniker = "@device:pnp:\\\\?\\usb#vid_0bda&pid_5727&mi_00#6&29acc6bd&0&0000#{65e8773d-8f56-11d0-a3b9-00a0c9223196}\\global";
+        
+
+
     public void WpfCam() {
-        String moniker = "@device:pnp:\\\\?\\usb#vid_0bda&pid_5727&mi_00#6&29acc6bd&0&0000#{65e8773d-8f56-11d0-a3b9-00a0c9223196}\\global";
         CapDevice device = new CapDevice(moniker);
 
         device.Framerate = 15;
 
         device.NewFrameArrived += showFps;
-        device.NewFrameArrived += saveImage;
+        //device.NewFrameArrived += saveImage;
         
         device.Start();
 
