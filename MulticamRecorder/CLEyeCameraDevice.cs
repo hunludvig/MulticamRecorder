@@ -465,9 +465,9 @@ namespace CLEyeMulticam
             return true;
         }
 
-        public void CreateAndStart() {
+        public void Start() {
             Create();
-            Start();
+            Init();
         }
 
         private void InitBitmap()
@@ -510,7 +510,7 @@ namespace CLEyeMulticam
             }
         }
 
-        private void Start()
+        private void Init()
         {
             if (!_valid)
                 throw new InvalidOperationException("Camera is not initialized");
@@ -548,10 +548,5 @@ namespace CLEyeMulticam
             CLEyeDestroyCamera(_camera);
         }
         #endregion
-
-        void ICamera.Start()
-        {
-            CreateAndStart();
-        }
     }
 }
