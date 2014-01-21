@@ -58,7 +58,7 @@ namespace MulticamRecorder
         }
     }
 
-    class ImageSaver
+    class PngSaver
     {
         public String Filename { get; set; }
 
@@ -72,7 +72,9 @@ namespace MulticamRecorder
         {
             PngBitmapEncoder Encoder = new PngBitmapEncoder();
             Encoder.Frames.Add(image.Bitmap);
-            FileStream file = new FileStream(generateFilename(image), FileMode.Create);
+            String filename = generateFilename(image);
+            Directory.CreateDirectory(Path.GetDirectoryName(filename));
+            FileStream file = new FileStream(filename, FileMode.Create);
             Encoder.Save(file);
             file.Close();
         }
