@@ -2,8 +2,9 @@
 # This .gitignore file was automatically created by Microsoft(R) Visual Studio.
 ################################################################################
 
-/MulticamRecorder/bin/x86/Debug/pics1
-/MulticamRecorder/obj
-/MulticamRecorder/bin/x86/Debug
+/MulticamRecorder/bin/
+/MulticamRecorder/obj/
+/MonikerPrinter/bin/
+/MonikerPrinter/obj/
 /MulticamRecorder.v11.suo
 /MulticamRecorder.v12.suo
