@@ -382,8 +382,6 @@ namespace CatenaLogic
             _capGrabber.NewFrameArrived += new EventHandler(capGrabber_NewFrameArrived);
 
             // Start the thread
-            //_serviceThread = new Thread(RunWorker);
-            //_serviceThread.Start();
             addTask(Init);
             InitCapGrabber();
         }
@@ -415,7 +413,7 @@ namespace CatenaLogic
                 using (AMMediaType mediaType = new AMMediaType())
                 {
                     mediaType.MajorType = MediaTypes.Video;
-                    mediaType.SubType = MediaSubTypes.RGB32;
+                    mediaType.SubType = MediaSubTypes.RGB32;                  
                     _grabber.SetMediaType(mediaType);
 
                     if (_graph.Connect(_sourceObject.GetPin(PinDirection.Output, 0), _grabberObject.GetPin(PinDirection.Input, 0)) >= 0)
@@ -440,7 +438,7 @@ namespace CatenaLogic
                                     // Succeeded
                                     succeeded = true;
                                 }
-                                catch (Exception retryException)
+                                catch
                                 {
                                     // Trace
                                     log.InfoFormat("Failed to retrieve the grabber information, tried {0} time(s)", retryCount);
