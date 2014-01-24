@@ -536,12 +536,13 @@ namespace CLEyeMulticam
             {
                 if (CLEyeCameraGetFrame(_camera, _map, 500))
                 {
+                    long timestamp = Stopwatch.GetTimestamp();
                     if (!_running)  break;
                     i++;
                     BitmapFrame bitmap = BitmapFrame.Create(BitmapSource);
                     bitmap.Freeze();
                     if(NewFrameArrived!=null)
-                        NewFrameArrived(this, new ImagingEventArgs(bitmap, i, Stopwatch.GetTimestamp()));
+                        NewFrameArrived(this, new ImagingEventArgs(bitmap, i, timestamp));
                 }
             }
             CLEyeCameraStop(_camera);

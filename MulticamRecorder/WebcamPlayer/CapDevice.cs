@@ -293,11 +293,11 @@ namespace CatenaLogic
                 addTask(delegate
                 {
                     if (BitmapSource != null)
-                    {
+                    {   long timestamp = Stopwatch.GetTimestamp();
                         BitmapFrame bitmap = BitmapFrame.Create(BitmapSource);
                         bitmap.Freeze();
                         if (NewFrameArrived != null)
-                            NewFrameArrived(this, new ImagingEventArgs(bitmap, frames, Stopwatch.GetTimestamp()));
+                            NewFrameArrived(this, new ImagingEventArgs(bitmap, frames, timestamp));
                         BitmapSource.Invalidate();
                     }
                 });
