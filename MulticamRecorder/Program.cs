@@ -16,8 +16,9 @@ namespace MulticamRecorder
     class Program
     {
         static private Stopwatch watch;
-
         static ICamera Device;
+
+        private static ILog log = LogManager.GetCurrentClassLogger();
 
         static void Main(string[] args)
         {
@@ -32,7 +33,7 @@ namespace MulticamRecorder
             //Device = (ICamera)context.GetObject("camera");
             //Device.BitmapUpdated += ShowFps;
 
-            Console.WriteLine(Stopwatch.Frequency);
+            log.Info("Stopwatch frequency: " + Stopwatch.Frequency + " ticks/sec");
 
             watch.Start();
 
@@ -43,8 +44,14 @@ namespace MulticamRecorder
             {
                 camera.Stop();
             }
-        
-            //Console.ReadLine();
+
+            log.Info("Waiting for camera");
+            foreach (ICamera camera in cameras.Values)
+            {
+                camera.Wait();
+            }
+            
+            log.Info("Recording finished");
         }
 
         static void ShowEvent(object sender, EventArgs e)
@@ -61,16 +68,28 @@ namespace MulticamRecorder
     class PngSaver
     {
         public String Filename { get; set; }
+        public String EncoderClass { get; set;}
+            //set {
+            //    _EncoderClass = Type.GetType(value);
+            //    if (_EncoderClass.IsSubclassOf(typeof(BitmapEncoder)))
+            //        EncoderClass = value;
+            //    else
+            //        throw new Exception("Not valid subclass of BitmapEncoder: "+value);
+            //} }
+
+        private Type _EncoderClass;
 
         public void SaveImage(object sender, ImagingEventArgs args)
         {
             Action<object> saveImageAction = (object bm) => SaveImage((ImagingEventArgs)bm);
-            Task.Factory.StartNew(saveImageAction, args);
+            Task.Factory.StartNew(saveImageAction, args, TaskCreationOptions.AttachedToParent);
         }
 
         private void SaveImage(ImagingEventArgs image)
         {
-            PngBitmapEncoder Encoder = new PngBitmapEncoder();
+            //if (_EncoderClass == default(Type))
+            //    return;
+            BitmapEncoder Encoder = new PngBitmapEncoder();
             Encoder.Frames.Add(image.Bitmap);
             String filename = generateFilename(image);
             Directory.CreateDirectory(Path.GetDirectoryName(filename));
