@@ -21,6 +21,7 @@ using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.ComTypes;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Interop;
 using System.Windows.Media;
@@ -94,7 +95,7 @@ namespace CatenaLogic
         #endregion
 
         #region Variables
-        private Thread _grabThread = null;
+        private Task grabThread = null;
         private BlockingCollection<ThreadStart> tasks = new BlockingCollection<ThreadStart>();
         private CancellationTokenSource stopSignal = new CancellationTokenSource();
         private IGraphBuilder _graph = null;
@@ -139,8 +140,7 @@ namespace CatenaLogic
         }
 
         private void InitGrabThread() {
-            _grabThread = new Thread(ProcessTasks);
-            _grabThread.Start();
+            grabThread = Task.Factory.StartNew(ProcessTasks, TaskCreationOptions.LongRunning);
             log.Trace("Grap Thread started");
         }
 
@@ -253,10 +253,12 @@ namespace CatenaLogic
             get
             {
                 // Check if we have a worker thread
-                if (_grabThread == null) return false;
+                if (grabThread == null) return false;
 
                 // Check if we can join the thread
-                if (_grabThread.Join(0) == false && !tasks.IsAddingCompleted) return true;
+                if ((grabThread.Status == TaskStatus.Running ||
+                    grabThread.Status == TaskStatus.WaitingToRun)
+                    && !tasks.IsAddingCompleted) return true;
 
                 // Release
                 Release();
@@ -491,7 +493,7 @@ namespace CatenaLogic
             {
                 // Yes, stop via the event
                 tasks.CompleteAdding();
-                if(!_grabThread.Join(100))
+                if(!grabThread.Wait(100))
                      stopSignal.Cancel();
                 StopDevice();
             }
