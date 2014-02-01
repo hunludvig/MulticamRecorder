@@ -31,6 +31,8 @@ $variance = $sum/($num_of_diff-1) # tick^2
 
 $deviance = [System.Math]::Sqrt($variance)*1000/$frq # ms
 
+echo ("Duration: {0} sec" -f $time)
+echo ("Frames: {0}" -f $num_of_ts)
 echo ("Frequency: {0} fps" -f $fps) 
 echo ("Mean: {0} ms" -f ($mean*1000/$frq))
 echo ("Dev: {0} ms" -f $deviance)
