@@ -492,12 +492,10 @@ namespace CatenaLogic
             if (IsRunning)
             {
                 // Yes, stop via the event
-                tasks.CompleteAdding();
-                if(!grabThread.Wait(100))
-                     stopSignal.Cancel();
                 StopDevice();
+                if (!grabThread.Wait(5000))
+                     stopSignal.Cancel();
             }
-
         }
 
         /// <summary>
@@ -519,10 +517,8 @@ namespace CatenaLogic
        private void StopDevice() {
            try {
                     log.Debug("stop device");
-                    tasks.CompleteAdding();
-                    //_control.StopWhenReady();
                     _control.StopWhenReady();
-                
+                    tasks.CompleteAdding();
             }  catch (Exception ex)
             {
                 // Trace
@@ -548,8 +544,27 @@ namespace CatenaLogic
                 log.Debug(ex);
             }
         }
+        public void Wait()
+        {
+            grabThread.Wait();
+        }
+        public void Wait(CancellationToken cancellationToken)
+        {
+            grabThread.Wait(cancellationToken);
+        }
+        public bool Wait(int millisecondsTimeout)
+        {
+            return grabThread.Wait(millisecondsTimeout);
+        }
+        public bool Wait(TimeSpan timeout)
+        {
+            return grabThread.Wait(timeout);
+        }
+        public bool Wait(int millisecondsTimeout, CancellationToken cancellationToken)
+        {
+            return grabThread.Wait(millisecondsTimeout, cancellationToken);
+        }
 
         #endregion
     }
-
 }

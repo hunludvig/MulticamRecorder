@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Windows.Media.Imaging;
+using System.Threading;
 
 
 namespace MulticamRecorder
@@ -23,5 +24,10 @@ namespace MulticamRecorder
         void Start();
         void Stop();
         event EventHandler<ImagingEventArgs> NewFrameArrived;
+        void Wait();
+        void Wait(CancellationToken cancellationToken);
+        bool Wait(int millisecondsTimeout);
+        bool Wait(TimeSpan timeout);
+        bool Wait(int millisecondsTimeout, CancellationToken cancellationToken);
     }
 }

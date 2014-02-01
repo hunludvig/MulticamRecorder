@@ -16,6 +16,7 @@ using System;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Interop;
 using System.Windows.Media;
@@ -117,8 +118,8 @@ namespace CLEyeMulticam
         private IntPtr _section = IntPtr.Zero;
         private IntPtr _camera = IntPtr.Zero;
         private volatile bool _valid = false;
-        private bool _running;
-        private Thread _workerThread;
+        private volatile bool _running;
+        private Task workerThread;
         private ILog log = LogManager.GetCurrentClassLogger();
         #endregion
 
@@ -515,8 +516,7 @@ namespace CLEyeMulticam
             if (!_valid)
                 throw new InvalidOperationException("Camera is not initialized");
             _running = true;
-            _workerThread = new Thread(new ThreadStart(CaptureThread));
-            _workerThread.Start();
+            workerThread = Task.Factory.StartNew(CaptureThread, TaskCreationOptions.LongRunning);
             log.Debug("Camera started");
         }
 
@@ -524,7 +524,7 @@ namespace CLEyeMulticam
         {
             if (!_running) return;
             _running = false;
-            _workerThread.Join(1000);
+            workerThread.Wait(1000);
         }
 
         void CaptureThread()
@@ -548,6 +548,28 @@ namespace CLEyeMulticam
             CLEyeCameraStop(_camera);
             CLEyeDestroyCamera(_camera);
         }
+
+        public void Wait()
+        {
+            workerThread.Wait();
+        }
+        public void Wait(CancellationToken cancellationToken)
+        {
+            workerThread.Wait(cancellationToken);
+        }
+        public bool Wait(int millisecondsTimeout)
+        {
+            return workerThread.Wait(millisecondsTimeout);
+        }
+        public bool Wait(TimeSpan timeout)
+        {
+            return workerThread.Wait(timeout);
+        }
+        public bool Wait(int millisecondsTimeout, CancellationToken cancellationToken)
+        {
+            return workerThread.Wait(millisecondsTimeout, cancellationToken);
+        }
+
         #endregion
     }
 }
