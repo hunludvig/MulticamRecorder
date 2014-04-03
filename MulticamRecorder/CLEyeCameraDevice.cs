@@ -524,7 +524,7 @@ namespace CLEyeMulticam
         {
             if (!_running) return;
             _running = false;
-            workerThread.Wait(1000);
+            log.Info("CL-Eye device stopped");
         }
 
         void CaptureThread()

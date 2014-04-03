@@ -289,8 +289,6 @@ namespace CatenaLogic
         /// <param name="e">EventArgs</param>
         private void capGrabber_NewFrameArrived(object sender, EventArgs e)
         {
-            log.Trace("capGrabber new frame arrived");
-            // Make sure to be thread safe
             frames++;
                 addTask(delegate
                 {
@@ -300,7 +298,6 @@ namespace CatenaLogic
                         bitmap.Freeze();
                         if (NewFrameArrived != null)
                             NewFrameArrived(this, new ImagingEventArgs(bitmap, frames, timestamp));
-                        BitmapSource.Invalidate();
                     }
                 });
         }
