@@ -11,8 +11,8 @@ namespace MulticamRecorder
 {
     class Program
     {
-        static private Stopwatch watch;
-
+        private const int UPDATE_INTERVAL = 1000; //ms
+       
         private static ILog log = LogManager.GetCurrentClassLogger();
 
         static void Main(string[] args)
@@ -21,42 +21,62 @@ namespace MulticamRecorder
 
             IApplicationContext context = ContextRegistry.GetContext();
 
-            watch = new Stopwatch();
-
             IDictionary cameras = context.GetObjectsOfType(typeof(ICamera));
-            
-            //Device = (ICamera)context.GetObject("camera");
-            //Device.BitmapUpdated += ShowFps;
+            IDictionary consumers = context.GetObjectsOfType(typeof(ImageSaver));
 
             log.Info("Stopwatch frequency: " + Stopwatch.Frequency + " ticks/sec");
 
-            watch.Start();
-
-            Console.ReadLine();
-
-            log.Info("Stopping camera");
-            foreach (ICamera camera in cameras.Values)
+            Boolean run = cameras.Count > 0;
+            Boolean stopped = false;
+            while (run)
             {
-                camera.Stop();
-            }
+                try
+                {
+                    if (!stopped)
+                    {
+                        Reader.ReadLine(UPDATE_INTERVAL);
 
-            log.Info("Waiting for camera");
-            foreach (ICamera camera in cameras.Values)
-            {
-                camera.Wait();
+                        log.Info("Stopping camera");
+                        foreach (ICamera camera in cameras.Values)
+                        {
+                            camera.Stop();
+                        }
+                        stopped = true;
+                        log.Info("Waiting for camera");
+                    }
+                    else
+                    {
+                        foreach (ICamera camera in cameras.Values)
+                        {
+                            camera.Wait(UPDATE_INTERVAL);
+                        }
+                        run = false;
+                    }
+                }
+                catch (TimeoutException)
+                {
+                    printDetails(cameras, consumers);
+                }
             }
             
             log.Info("Recording finished");
+            ConsoleHelper.waitForKey();
         }
 
-        static void ShowEvent(object sender, EventArgs e)
+        private static void printDetails(IDictionary cameras, IDictionary consumers)
         {
-            Console.WriteLine(DateTime.Now.ToString());
-        }
-
-        static void ShowFps(object sender, ImagingEventArgs args)
-        {
-            Console.WriteLine(args.Frame * 1000f / watch.ElapsedMilliseconds);
+            int framesGrabbed = 0;
+            int framesProcessed = 0;
+            foreach (ICamera camera in cameras.Values)
+            {
+                framesGrabbed += camera.FramesGrabbed;
+            }
+            foreach (ImageSaver consumer in consumers.Values)
+            {
+                framesProcessed += consumer.FramesProcessed;
+            }
+            Console.WriteLine("Frames grabbed: " + framesGrabbed +
+                " Frames saved: " + framesProcessed);
         }
     }
 }
