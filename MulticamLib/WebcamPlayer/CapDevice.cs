@@ -489,8 +489,6 @@ namespace CatenaLogic
             {
                 // Yes, stop via the event
                 StopDevice();
-                if (!grabThread.Wait(5000))
-                     stopSignal.Cancel();
             }
         }
 
