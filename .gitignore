@@ -6,5 +6,11 @@
 /MulticamRecorder/obj/
 /MonikerPrinter/bin/
 /MonikerPrinter/obj/
+/bin/
+/MulticamLib/bin/
+/MulticamLib/obj/
+/MulticamGui/bin/
+/MulticamGui/obj/
+/SandBox/
 /MulticamRecorder.v11.suo
 /MulticamRecorder.v12.suo
