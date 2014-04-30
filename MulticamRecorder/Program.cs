@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Diagnostics;
+using System.Configuration;
 
 using Spring.Context;
 using Spring.Context.Support;
@@ -11,13 +12,29 @@ namespace MulticamRecorder
 {
     class Program
     {
-        private const int UPDATE_INTERVAL = 1000; //ms
-       
+        private static int UPDATE_INTERVAL = 1000; //ms
+        
         private static ILog log = LogManager.GetCurrentClassLogger();
+
+        private static void Init() 
+        {
+            try
+            {
+                UPDATE_INTERVAL = Int32.Parse(ConfigurationManager.AppSettings["update_interval"]);
+                if (UPDATE_INTERVAL < -1)
+                {
+                    throw new ArgumentOutOfRangeException("Update interval should be non negative");
+                }
+            }
+            catch (Exception e)
+            {
+                log.Error("Update Interval not recognized from config file", e);
+            }
+        }
 
         static void Main(string[] args)
         {
-            ILog log = LogManager.GetCurrentClassLogger();
+            Init();
 
             IApplicationContext context = ContextRegistry.GetContext();
 
@@ -27,36 +44,30 @@ namespace MulticamRecorder
             log.Info("Stopwatch frequency: " + Stopwatch.Frequency + " ticks/sec");
 
             Boolean run = cameras.Count > 0;
-            Boolean stopped = false;
             while (run)
             {
                 try
                 {
-                    if (!stopped)
-                    {
-                        Reader.ReadLine(UPDATE_INTERVAL);
+                    Reader.ReadLine(UPDATE_INTERVAL);
 
-                        log.Info("Stopping camera");
-                        foreach (ICamera camera in cameras.Values)
-                        {
-                            camera.Stop();
-                        }
-                        stopped = true;
-                        log.Info("Waiting for camera");
-                    }
-                    else
+                    log.Info("Stopping cameras");
+                    foreach (ICamera camera in cameras.Values)
                     {
-                        foreach (ICamera camera in cameras.Values)
-                        {
-                            camera.Wait(UPDATE_INTERVAL);
-                        }
-                        run = false;
+                        camera.Stop();
                     }
+                    run = false;
                 }
                 catch (TimeoutException)
                 {
                     printDetails(cameras, consumers);
                 }
+            }
+
+            log.Info("Waiting for cameras");
+            foreach (ICamera camera in cameras.Values)
+            {
+                 while(!camera.Wait(UPDATE_INTERVAL))
+                     printDetails(cameras, consumers);
             }
             
             log.Info("Recording finished");
