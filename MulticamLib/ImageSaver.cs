@@ -2,6 +2,7 @@
 using System.Text;
 using System.Windows.Media.Imaging;
 using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace MulticamRecorder
@@ -9,7 +10,10 @@ namespace MulticamRecorder
     public abstract class ImageSaver
     {
         public String Filename { get; set; }
-        
+        private int framesProcessed = 0;
+
+        public int FramesProcessed { get { return Thread.VolatileRead(ref framesProcessed); } }
+
         protected abstract BitmapEncoder newEncoder();
 
         public void SaveImage(object sender, ImagingEventArgs args)
@@ -20,13 +24,26 @@ namespace MulticamRecorder
 
         private void SaveImage(ImagingEventArgs image)
         {
-            BitmapEncoder Encoder = newEncoder();
-            Encoder.Frames.Add(image.Bitmap);
+            BitmapEncoder encoder = encodeImage(image);
+            FileStream file = createFile(image);
+            encoder.Save(file);
+            file.Close();
+            Interlocked.Increment(ref framesProcessed);
+        }
+
+        private BitmapEncoder encodeImage(ImagingEventArgs image)
+        {
+            BitmapEncoder encoder = newEncoder();
+            encoder.Frames.Add(image.Bitmap);
+            return encoder;
+        }
+
+        private FileStream createFile(ImagingEventArgs image)
+        {
             String filename = generateFilename(image);
             Directory.CreateDirectory(Path.GetDirectoryName(filename));
             FileStream file = new FileStream(filename, FileMode.Create);
-            Encoder.Save(file);
-            file.Close();
+            return file;
         }
 
         private String generateFilename(ImagingEventArgs image)

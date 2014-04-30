@@ -106,8 +106,17 @@ namespace CatenaLogic
         private CapGrabber _capGrabber = null;
         private IntPtr _map = IntPtr.Zero;
         private IntPtr _section = IntPtr.Zero;
-        private int frames = 0;
+        private int framesGrabbed = 0;
 
+        private class CapImagingEventArgs : ImagingEventArgs {
+            CapDevice parent;
+            public CapImagingEventArgs(CapDevice parent, BitmapFrame bitmap, int frame, long timestamp)
+                : base (bitmap, frame, timestamp)
+            {
+                this.parent = parent;
+            }
+        }
+        
         private static ILog log = LogManager.GetCurrentClassLogger();
 
         private string _monikerString = "";
@@ -129,14 +138,6 @@ namespace CatenaLogic
 
             // Store moniker string
             InitializeDeviceForMoniker(moniker);
-
-            // Check if this code is invoked by an application or as a user control
-            if (Application.Current != null)
-            {
-                // Application, subscribe to exit event so we can shut down
-                Application.Current.Exit += new ExitEventHandler(CurrentApplication_Exit);
-            }
-
         }
 
         private void InitGrabThread() {
@@ -151,6 +152,11 @@ namespace CatenaLogic
         {
             Stop();
         }
+
+        ~CapDevice() {
+            Dispose();
+        }
+
         #endregion
 
         #region Events
@@ -267,20 +273,12 @@ namespace CatenaLogic
                 return false;
             }
         }
+
+        public int FramesGrabbed { get { return Thread.VolatileRead(ref framesGrabbed); } }
+
         #endregion
 
         #region Methods
-        /// <summary>
-        /// Invoked when the application exits
-        /// </summary>
-        /// <param name="sender">Sender</param>
-        /// <param name="e">EventArgs</param>
-        private void CurrentApplication_Exit(object sender, ExitEventArgs e)
-        {
-            log.Debug("exit application");
-            // Dispose
-            Dispose();
-        }
 
         /// <summary>
         /// Invoked when a new frame arrived
@@ -289,17 +287,18 @@ namespace CatenaLogic
         /// <param name="e">EventArgs</param>
         private void capGrabber_NewFrameArrived(object sender, EventArgs e)
         {
-            frames++;
-                addTask(delegate
-                {
-                    if (BitmapSource != null)
-                    {   long timestamp = Stopwatch.GetTimestamp();
-                        BitmapFrame bitmap = BitmapFrame.Create(BitmapSource);
-                        bitmap.Freeze();
-                        if (NewFrameArrived != null)
-                            NewFrameArrived(this, new ImagingEventArgs(bitmap, frames, timestamp));
-                    }
-                });
+            long timestamp = Stopwatch.GetTimestamp();
+            Interlocked.Increment(ref framesGrabbed);
+            addTask(delegate
+            {
+                if (BitmapSource != null)
+                {   
+                    BitmapFrame bitmap = BitmapFrame.Create(BitmapSource);
+                    bitmap.Freeze();
+                    if (NewFrameArrived != null)
+                        NewFrameArrived(this, new CapImagingEventArgs(this, bitmap, framesGrabbed, timestamp));         
+                }
+            });
         }
 
         private void InitCapGrabber()

@@ -121,6 +121,18 @@ namespace CLEyeMulticam
         private volatile bool _running;
         private Task workerThread;
         private ILog log = LogManager.GetCurrentClassLogger();
+        private int framesGrabbed = 0;
+
+        private class ClEyeImagingEventArgs : ImagingEventArgs
+        {
+            CLEyeCameraDevice parent;
+            public ClEyeImagingEventArgs(CLEyeCameraDevice parent, BitmapFrame bitmap, int frame, long timestamp)
+                : base(bitmap, frame, timestamp)
+            {
+                this.parent = parent;
+            }
+        }
+
         #endregion
 
         #region [ Events ]
@@ -403,6 +415,8 @@ namespace CLEyeMulticam
                 CLEyeSetCameraParameter(_camera, CLEyeCameraParameter.CLEYE_LENSBRIGHTNESS, value);
             }
         }
+
+        public int FramesGrabbed { get { return Thread.VolatileRead(ref framesGrabbed); } }
         #endregion
 
         #region [ Static ]
@@ -531,18 +545,17 @@ namespace CLEyeMulticam
         {
             InitBitmap();
             CLEyeCameraStart(_camera);
-            int i = 0;
             while (_running)
             {
                 if (CLEyeCameraGetFrame(_camera, _map, 500))
                 {
                     long timestamp = Stopwatch.GetTimestamp();
                     if (!_running)  break;
-                    i++;
+                    Interlocked.Increment(ref framesGrabbed);
                     BitmapFrame bitmap = BitmapFrame.Create(BitmapSource);
                     bitmap.Freeze();
                     if(NewFrameArrived!=null)
-                        NewFrameArrived(this, new ImagingEventArgs(bitmap, i, timestamp));
+                        NewFrameArrived(this, new ClEyeImagingEventArgs(this, bitmap, framesGrabbed, timestamp));
                 }
             }
             CLEyeCameraStop(_camera);

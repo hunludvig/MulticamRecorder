@@ -5,7 +5,7 @@ using System.Threading;
 
 namespace MulticamRecorder
 {
-    public class ImagingEventArgs : EventArgs
+    public abstract class ImagingEventArgs : EventArgs
     {
         public long Timestamp { get; private set; }
         public int Frame { get; private set; }
@@ -24,6 +24,7 @@ namespace MulticamRecorder
         void Start();
         void Stop();
         event EventHandler<ImagingEventArgs> NewFrameArrived;
+        int FramesGrabbed { get; }
         void Wait();
         void Wait(CancellationToken cancellationToken);
         bool Wait(int millisecondsTimeout);
