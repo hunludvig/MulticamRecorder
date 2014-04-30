@@ -1,6 +1,10 @@
 param (
+	[Parameter(Mandatory=$False,Position=1)]
 	[string]$dir = ".",
-	[long]$frq = 2825673 # ticks/sec
+	[Parameter(Mandatory=$False)]
+	[long]$frq = 2825703, # ticks/sec
+	[Parameter(Mandatory=$False)]
+	[string]$timestampsFile = ""
 )
 
 $timestamps =  (gci $dir | % {$_.BaseName.SubString(4)} | sort )
@@ -30,6 +34,13 @@ for ($i=0; $i -lt $num_of_diff; $i++ ) {
 $variance = $sum/($num_of_diff-1) # tick^2
 
 $deviance = [System.Math]::Sqrt($variance)*1000/$frq # ms
+
+# Save diff data to file
+if ($timestampsFile -ne "")
+{
+	echo ("Timestamps written to {0}" -f $timestampsFile)
+	$timestamps >> $timestampsFile
+}
 
 echo ("Duration: {0} sec" -f $time)
 echo ("Frames: {0}" -f $num_of_ts)
