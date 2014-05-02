@@ -11,14 +11,19 @@ namespace MulticamRecorder
     {
         public String Filename { get; set; }
         private int framesProcessed = 0;
+        private Action<object> saveImageAction;
 
         public int FramesProcessed { get { return Thread.VolatileRead(ref framesProcessed); } }
 
         protected abstract BitmapEncoder newEncoder();
 
+        public ImageSaver()
+        {
+            saveImageAction = (object bm) => SaveImage((ImagingEventArgs)bm);
+        }
+
         public void SaveImage(object sender, ImagingEventArgs args)
         {
-            Action<object> saveImageAction = (object bm) => SaveImage((ImagingEventArgs)bm);
             Task.Factory.StartNew(saveImageAction, args, TaskCreationOptions.AttachedToParent);
         }
 
