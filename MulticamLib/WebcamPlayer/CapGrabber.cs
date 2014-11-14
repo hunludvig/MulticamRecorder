@@ -18,6 +18,7 @@
 using System;
 using System.Runtime.InteropServices;
 using System.ComponentModel;
+using System.Diagnostics;
 
 namespace CatenaLogic
 {
@@ -42,7 +43,7 @@ namespace CatenaLogic
         #region Events
         public event PropertyChangedEventHandler PropertyChanged;
 
-        public event EventHandler NewFrameArrived;
+        public event EventHandler<TimestampArgs> NewFrameArrived;
         #endregion
 
         #region Properties
@@ -83,19 +84,20 @@ namespace CatenaLogic
 
         public int BufferCB(double sampleTime, IntPtr buffer, int bufferLen)
         {
+            long timestamp = Stopwatch.GetTimestamp();
             if (Map != IntPtr.Zero)
             {
                 CopyMemory(Map, buffer, bufferLen);
-                OnNewFrameArrived();
+                OnNewFrameArrived(timestamp);
             }
             return 0;
         }
 
-        void OnNewFrameArrived()
+        void OnNewFrameArrived(long timestamp)
         {
             if (NewFrameArrived != null)
             {
-                NewFrameArrived(this, null);
+                NewFrameArrived(this, new TimestampArgs(timestamp));
             }
         }
 

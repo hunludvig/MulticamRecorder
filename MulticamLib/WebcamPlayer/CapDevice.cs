@@ -164,7 +164,7 @@ namespace CatenaLogic
         /// Event that is invoked when a new bitmap is ready
         /// </summary>
         public event EventHandler NewBitmapReady;
-        public event EventHandler<ImagingEventArgs> NewFrameArrived;
+        public event EventHandler<ImagingEventArgs> NewFrame;
         #endregion
 
         #region Properties
@@ -276,18 +276,21 @@ namespace CatenaLogic
 
         public int FramesGrabbed { get { return Thread.VolatileRead(ref framesGrabbed); } }
 
+        public Boolean SingleThreaded { get; set; }
+
         #endregion
 
         #region Methods
+
 
         /// <summary>
         /// Invoked when a new frame arrived
         /// </summary>
         /// <param name="sender">Sender</param>
         /// <param name="e">EventArgs</param>
-        private void capGrabber_NewFrameArrived(object sender, EventArgs e)
+        private void capGrabber_NewFrameArrived(object sender, TimestampArgs e)
         {
-            long timestamp = Stopwatch.GetTimestamp();
+            long timestamp = e.Timestamp;
             Interlocked.Increment(ref framesGrabbed);
             addTask(delegate
             {
@@ -295,8 +298,8 @@ namespace CatenaLogic
                 {   
                     BitmapFrame bitmap = BitmapFrame.Create(BitmapSource);
                     bitmap.Freeze();
-                    if (NewFrameArrived != null)
-                        NewFrameArrived(this, new CapImagingEventArgs(this, bitmap, framesGrabbed, timestamp));         
+                    if (NewFrame != null)
+                        NewFrame(this, new CapImagingEventArgs(this, bitmap, framesGrabbed, timestamp));         
                 }
             });
         }
@@ -377,13 +380,12 @@ namespace CatenaLogic
 
             // Create new grabber
             _capGrabber = new CapGrabber();
-            _capGrabber.NewFrameArrived += new EventHandler(capGrabber_NewFrameArrived);
+            _capGrabber.NewFrameArrived += new EventHandler<TimestampArgs>(capGrabber_NewFrameArrived);
 
             // Start the thread
             addTask(Init);
             InitCapGrabber();
         }
-
  
 
         /// <summary>
@@ -560,5 +562,13 @@ namespace CatenaLogic
         }
 
         #endregion
+    }
+
+    public class TimestampArgs : EventArgs {
+        public long Timestamp { get; private set; }
+
+        public TimestampArgs(long timestamp) {
+            Timestamp = timestamp;
+        }
     }
 }

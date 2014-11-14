@@ -74,7 +74,7 @@ public class Test
 
         device.Framerate = 15;
 
-        device.NewFrameArrived += showFps;
+        device.NewFrame += showFps;
         //device.NewFrameArrived += saveImage;
         
         device.Start();

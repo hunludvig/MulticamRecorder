@@ -18,17 +18,51 @@ namespace MulticamRecorder
             Timestamp = timestamp;
         }
     }
+
+    public class ImageTripleEventArgs : EventArgs 
+    {
+        public ImagingEventArgs LeftEye { get; private set; }
+        public ImagingEventArgs RightEye { get; private set; }
+        public ImagingEventArgs Scene { get; private set; }
+
+        public ImageTripleEventArgs(ImagingEventArgs left, ImagingEventArgs right, ImagingEventArgs scene)
+        {
+            LeftEye = left;
+            RightEye = right;
+            Scene = scene;
+        }
+    }
    
-    public interface ICamera
+    public interface ICamera : IFrameProducer, IStartable, IStoppableAndWaitable
+    {
+        int FramesGrabbed { get; }
+    }
+
+    public interface IStartable
     {
         void Start();
+    }
+
+    public interface IStoppable
+    {
         void Stop();
-        event EventHandler<ImagingEventArgs> NewFrameArrived;
-        int FramesGrabbed { get; }
+    }
+
+    public interface IStoppableAndWaitable : IStoppable, IWaitable { }
+
+    public interface IFrameProducer {
+        event EventHandler<ImagingEventArgs> NewFrame;
+    }
+
+    public interface IWaitable {
         void Wait();
         void Wait(CancellationToken cancellationToken);
         bool Wait(int millisecondsTimeout);
         bool Wait(TimeSpan timeout);
         bool Wait(int millisecondsTimeout, CancellationToken cancellationToken);
+    }
+
+    public interface IImageHandler {
+        void HandleImage(ImagingEventArgs args);
     }
 }

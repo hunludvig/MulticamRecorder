@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace MulticamRecorder
 {
-    public abstract class ImageSaver
+    public abstract class ImageSaver : IImageHandler
     {
         public String Filename { get; set; }
         private int framesProcessed = 0;
@@ -22,9 +22,15 @@ namespace MulticamRecorder
             saveImageAction = (object bm) => SaveImage((ImagingEventArgs)bm);
         }
 
-        public void SaveImage(object sender, ImagingEventArgs args)
+        public void HandleImage(ImagingEventArgs args)
         {
+            Action<object> saveImageAction = (object bm) => SaveImage((ImagingEventArgs)bm);
             Task.Factory.StartNew(saveImageAction, args, TaskCreationOptions.AttachedToParent);
+        }
+
+        public void SaveImage(object ignored, ImagingEventArgs args)
+        {
+            HandleImage(args);
         }
 
         private void SaveImage(ImagingEventArgs image)

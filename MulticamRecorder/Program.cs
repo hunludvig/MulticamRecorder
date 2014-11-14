@@ -39,6 +39,7 @@ namespace MulticamRecorder
             IApplicationContext context = ContextRegistry.GetContext();
 
             IDictionary cameras = context.GetObjectsOfType(typeof(ICamera));
+            IDictionary toStop = context.GetObjectsOfType(typeof(IStoppableAndWaitable));
             IDictionary consumers = context.GetObjectsOfType(typeof(ImageSaver));
 
             log.Info("Stopwatch frequency: " + Stopwatch.Frequency + " ticks/sec");
@@ -51,9 +52,9 @@ namespace MulticamRecorder
                     Reader.ReadLine(UPDATE_INTERVAL);
 
                     log.Info("Stopping cameras");
-                    foreach (ICamera camera in cameras.Values)
+                    foreach (IStoppable device in toStop.Values)
                     {
-                        camera.Stop();
+                        device.Stop();
                     }
                     run = false;
                 }
@@ -64,9 +65,9 @@ namespace MulticamRecorder
             }
 
             log.Info("Waiting for cameras");
-            foreach (ICamera camera in cameras.Values)
+            foreach (IWaitable device in toStop.Values)
             {
-                 while(!camera.Wait(UPDATE_INTERVAL))
+                 while(!device.Wait(UPDATE_INTERVAL))
                      printDetails(cameras, consumers);
             }
             

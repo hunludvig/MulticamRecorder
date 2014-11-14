@@ -137,7 +137,7 @@ namespace CLEyeMulticam
 
         #region [ Events ]
         public event EventHandler BitmapReady;
-        public event EventHandler<ImagingEventArgs> NewFrameArrived;
+        public event EventHandler<ImagingEventArgs> NewFrame;
         #endregion
 
         
@@ -551,11 +551,13 @@ namespace CLEyeMulticam
                 {
                     long timestamp = Stopwatch.GetTimestamp();
                     if (!_running)  break;
-                    Interlocked.Increment(ref framesGrabbed);
                     BitmapFrame bitmap = BitmapFrame.Create(BitmapSource);
                     bitmap.Freeze();
-                    if(NewFrameArrived!=null)
-                        NewFrameArrived(this, new ClEyeImagingEventArgs(this, bitmap, framesGrabbed, timestamp));
+                    if (NewFrame != null)
+                    {
+                        NewFrame(this, new ClEyeImagingEventArgs(this, bitmap, framesGrabbed, timestamp));
+                        Interlocked.Increment(ref framesGrabbed);
+                    }
                 }
             }
             CLEyeCameraStop(_camera);
